@@ -15,10 +15,19 @@ local playerName, _ = UnitName("player")
 local _, class = UnitClass("player")
 local colour1 = RAID_CLASS_COLORS[class].colorStr
 local fontFamily = "Interface\\AddOns\\Venge\\Roboto-Bold.ttf"--"Interface\\AddOns\\tekticles\\CalibriBold.ttf"
+local tank = false
+
+local tankSpecs = {
+  [250] = true, -- Blood DK
+  [104] = true, -- Guardian Druid
+  [268] = true, -- Brewmaster Monk
+  [66] = true,  -- Protection Paladin
+  [73] = true,  -- Protection Warrior
+}
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("UNIT_AURA")
+frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 
 local display = frame:CreateFontString(nil, "OVERLAY")
 display:SetFont(fontFamily, fontSize, fontFlag)
@@ -35,9 +44,25 @@ end
 local function eventHandler(self, event, ...)
   if event == "ADDON_LOADED" then
     if ... == addon then
-      print("|c"..colour1..addon.."|r loaded!")
+      local specId, _ = GetSpecializationInfo(GetSpecialization())
+      tank = tankSpecs[specId]
+      if tank then
+        print("|c"..colour1..addon.."|r loaded!")
+        frame:RegisterEvent("UNIT_AURA")
+      end
     end
-  else 
+  elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
+    local specId, _ = GetSpecializationInfo(GetSpecialization())
+    tank = tankSpecs[specId]
+    if tank then
+      print("|c"..colour1..addon.."|r is now tracking vengeance!")
+      frame:RegisterEvent("UNIT_AURA")
+    else
+      print("|c"..colour1..addon.."|r is no longer tracking vengeance as you've switched to a non-tank spec.")
+      frame:UnregisterEvent("UNIT_AURA")
+      display:SetText(nil)
+    end
+  else
     local unit = ...
     if unit ~= "player" then return end
 
