@@ -27,7 +27,6 @@ local tankSpecs = {
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 
 local display = frame:CreateFontString(nil, "OVERLAY")
 display:SetFont(fontFamily, fontSize, fontFlag)
@@ -49,9 +48,13 @@ local function eventHandler(self, event, ...)
       if tank then
         print("|c"..colour1..addon.."|r loaded!")
         frame:RegisterEvent("UNIT_AURA")
+        frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
       end
     end
   elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
+    local unit = ...
+    if unit ~= "player" then return end
+    
     local specId, _ = GetSpecializationInfo(GetSpecialization())
     tank = tankSpecs[specId]
     if tank then
@@ -60,6 +63,7 @@ local function eventHandler(self, event, ...)
     else
       print("|c"..colour1..addon.."|r is no longer tracking vengeance as you've switched to a non-tank spec.")
       frame:UnregisterEvent("UNIT_AURA")
+      -- clear the text; usually handled by the UNIT_AURA event but we just stopped tracking it
       display:SetText(nil)
     end
   else
