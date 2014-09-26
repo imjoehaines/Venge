@@ -1,12 +1,12 @@
 ----------------
 -- Config ------
 ----------------
-local x, y = 0, -5           -- x, y positioning (two numbers)
-local anchorFrame = Minimap -- Frame to anchor Venge to
-local frameAnchor = "BOTTOM"-- Position of the anchor frame to attach Venge to
-local vengeAnchor = "TOP"   -- Position of the Venge frame to anchor
-local fontSize = 12         -- size of the font (one number)
-local fontFlag = "OUTLINE"  -- font details (OUTLINE, THICKOUTLINE or MONOCHROME)
+local x, y = 0, -5            -- x, y positioning (two numbers)
+local anchorFrame = Minimap   -- Frame to anchor Venge to
+local frameAnchor = "BOTTOM"  -- Position of the anchor frame to attach Venge to
+local vengeAnchor = "TOP"     -- Position of the Venge frame to anchor
+local fontSize = 12           -- size of the font (one number)
+local fontFlag = "OUTLINE"    -- font details (OUTLINE, THICKOUTLINE or MONOCHROME)
 
 ----------------
 
@@ -14,7 +14,7 @@ local addon, ns = ...
 local playerName, _ = UnitName("player")
 local _, class = UnitClass("player")
 local colour1 = RAID_CLASS_COLORS[class].colorStr
-local fontFamily = "Interface\\AddOns\\Venge\\Roboto-Bold.ttf"--"Interface\\AddOns\\tekticles\\CalibriBold.ttf"
+local fontFamily = "Interface\\AddOns\\tekticles\\CalibriBold.ttf"--"Interface\\AddOns\\Venge\\Roboto-Bold.ttf"--
 local tank = false
 
 local tankSpecs = {
@@ -26,7 +26,7 @@ local tankSpecs = {
 }
 
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_LOGIN")
 
 local display = frame:CreateFontString(nil, "OVERLAY")
 display:SetFont(fontFamily, fontSize, fontFlag)
@@ -41,20 +41,15 @@ local function prettifyNumber(n)
 end
 
 local function eventHandler(self, event, ...)
-  if event == "ADDON_LOADED" then
-    if ... == addon then
-      local specId, _ = GetSpecializationInfo(GetSpecialization())
-      tank = tankSpecs[specId]
-      if tank then
-        print("|c"..colour1..addon.."|r loaded!")
-        frame:RegisterEvent("UNIT_AURA")
-        frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-      end
+  if event == "PLAYER_LOGIN" then
+    local specId, _ = GetSpecializationInfo(GetSpecialization())
+    tank = tankSpecs[specId]
+    if tank then
+      print("|c"..colour1..addon.."|r loaded!")
+      frame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+      frame:RegisterUnitEvent("UNIT_AURA", "player")
     end
   elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
-    local unit = ...
-    if unit ~= "player" then return end
-    
     local specId, _ = GetSpecializationInfo(GetSpecialization())
     tank = tankSpecs[specId]
     if tank then
@@ -67,9 +62,6 @@ local function eventHandler(self, event, ...)
       display:SetText(nil)
     end
   else
-    local unit = ...
-    if unit ~= "player" then return end
-
     local _, _, _, _, _, _, _, _, _, _, _, _, _, _, vengeanceValue, _ = UnitBuff("player", "Vengeance")
     if vengeanceValue then
       display:SetText("|c"..colour1..prettifyNumber(vengeanceValue).."|r")
