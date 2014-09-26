@@ -14,8 +14,16 @@ local addon, ns = ...
 local playerName, _ = UnitName("player")
 local _, class = UnitClass("player")
 local colour1 = RAID_CLASS_COLORS[class].colorStr
-local fontFamily = "Interface\\AddOns\\tekticles\\CalibriBold.ttf"--"Interface\\AddOns\\Venge\\Roboto-Bold.ttf"--
+local fontFamily = "Interface\\AddOns\\Venge\\Roboto-Bold.ttf"--"Interface\\AddOns\\tekticles\\CalibriBold.ttf"----
 local tank = false
+
+local tankClass = {
+  ["DEATHKNIGHT"] = true,
+  ["DRUID"] = true,
+  ["MONK"] = true,
+  ["PALADIN"] = true,
+  ["WARRIOR"] = true,
+}
 
 local tankSpecs = {
   [250] = true, -- Blood DK
@@ -42,12 +50,16 @@ end
 
 local function eventHandler(self, event, ...)
   if event == "PLAYER_LOGIN" then
-    local specId, _ = GetSpecializationInfo(GetSpecialization())
-    tank = tankSpecs[specId]
-    if tank then
-      print("|c"..colour1..addon.."|r loaded!")
-      frame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
-      frame:RegisterUnitEvent("UNIT_AURA", "player")
+    if not tankClass[class] then
+      DisableAddOn("Venge") -- class is not capable of tanking so disable the addon
+    else
+      local specId, _ = GetSpecializationInfo(GetSpecialization())
+      tank = tankSpecs[specId]
+      if tank then
+        print("|c"..colour1..addon.."|r loaded!")
+        frame:RegisterUnitEvent("PLAYER_SPECIALIZATION_CHANGED", "player")
+        frame:RegisterUnitEvent("UNIT_AURA", "player")
+      end
     end
   elseif event == "PLAYER_SPECIALIZATION_CHANGED" then
     local specId, _ = GetSpecializationInfo(GetSpecialization())
