@@ -1,7 +1,7 @@
-## Interface: 50400
+## Interface: 60000
 ## Author: Infected Mushroom
 ## Title: Venge
-## Version: 1.1
-## Notes: Displays your Vengeance
+## Version: 1.2
+## Notes: Displays your Resolve
 
 main.lua
