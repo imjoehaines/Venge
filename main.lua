@@ -1,10 +1,12 @@
 ----------------
 -- Config ------
 ----------------
-local x, y = -75, -75            -- x, y positioning (two numbers)
+local fontScaling = true
+
+local x, y = -100, -50            -- x, y positioning (two numbers)
 local anchorFrame = UIParent   -- Frame to anchor Venge to
 local frameAnchor = "CENTER"  -- Position of the anchor frame to attach Venge to
-local anchor = "RIGHT"     -- Position of the Venge frame to anchor
+local anchor = "CENTER"     -- Position of the Venge frame to anchor
 local fontSize = 12           -- size of the font (one number)
 local fontFlag = "OUTLINE"    -- font details (OUTLINE, THICKOUTLINE or MONOCHROME)
 
@@ -87,7 +89,10 @@ local function eventHandler(self, event, ...)
   else
     local _, _, _, _, _, _, _, _, _, _, _, _, _, _, vengeanceValue, _ = UnitBuff("player", "Resolve")
     if vengeanceValue then
-      display:SetText("|c"..colour1..prettifyNumber(vengeanceValue).."|r%")
+      display:SetText("|c"..colour1..prettifyNumber(vengeanceValue).."|r")
+      if fontScaling then
+        display:SetFont(fontFamily, fontSize + (vengeanceValue / 24), fontFlag)
+      end
     else
       display:SetText(nil)
     end
